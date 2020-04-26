@@ -13,7 +13,7 @@ import (
 type User struct {
 	Email    string      `firestore:"email,omitempty"`
 	Password string      `firestore:"password,omitempty"`
-	UserID   int         `firestore:"userID,omitempty"`
+	UserID   string      `firestore:"userID,omitempty"`
 	Role     string      `firestore:"role,omitempty"`
 	Approved bool        `firestore:"approved,omitempty"`
 	Data     interface{} `firestore:"data,omitempty"` //optional field for app specific data
