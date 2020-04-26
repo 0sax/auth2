@@ -57,6 +57,13 @@ func (u *User) getUserSnapshot() (*firestore.DocumentSnapshot, error) {
 		Documents(av.GCContext).GetAll()
 	if err != nil {
 		return nil, &Error{
+			Msg:     "error querying db for user: " + u.Email + "because: " + err.Error(),
+			ErrType: ErrDB,
+		}
+	}
+
+	if len(usr) == 0 {
+		return nil, &Error{
 			Msg:     "User " + u.Email + "does not exist",
 			ErrType: ErrNoUser,
 		}

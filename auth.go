@@ -39,6 +39,7 @@ const (
 	ErrNoSessionCreated = 9  // Couldn't create a session
 	ErrUserNotApproved  = 10 // User has not been approved yet
 	ErrNoSession        = 11 // Session doesn't exist
+	ErrDB               = 12 //Query Error
 )
 
 var av *InitAuthVariables
