@@ -12,13 +12,11 @@ import (
 
 // Session represents a user session stored on the database
 type Session struct {
-	Email      string      //`firestore:"email"`
-	ExpiryDate time.Time   //`firestore:"expiryDate"`
-	FirstName  string      //`firestore:"firstName"`
-	LastName   string      //`firestore:"lastName"`
-	Role       string      //`firestore:"roles"`
-	Data       interface{} `firestore:"data,omitempty"` //optional field for app specific data
-	IPAddr     string
+	Email      string      `firestore:"email"`
+	ExpiryDate time.Time   `firestore:"expiryDate"`
+	Role       string      `firestore:"roles"`
+	IPAddr     string      `firestore:"iPAddress"`
+	Data       interface{} `firestore:"data"`
 }
 
 // CanAccess checks if a user's role is one of those listed
@@ -40,11 +38,9 @@ func CreateSession(user *User, ckName string, life int) (*http.Cookie, error) {
 	expiryDate := time.Now().Add(time.Duration(life) * time.Second)
 
 	//// Write to DB
-	_, err := av.DBName.Collection("sessions").Doc(sessionToken).
+	_, err := av.DBName.Collection(av.SessionsTable).Doc(sessionToken).
 		Set(av.GCContext, map[string]interface{}{
 			"email":      user.Email,
-			"firstName":  user.FirstName,
-			"lastName":   user.LastName,
 			"role":       user.Role,
 			"expiryDate": expiryDate,
 			"data":       user.Data,
@@ -70,7 +66,7 @@ func CreateSession(user *User, ckName string, life int) (*http.Cookie, error) {
 
 // KillSession deletes a session from the database
 func KillSession(sessionToken string) error {
-	_, err := av.DBName.Collection("sessions").Doc(sessionToken).Delete(av.GCContext)
+	_, err := av.DBName.Collection(av.SessionsTable).Doc(sessionToken).Delete(av.GCContext)
 	if err != nil {
 		return err
 	}
@@ -105,7 +101,7 @@ func GetSession(sT string) (*Session, error) {
 	// There can be only one!
 
 	//1. Get session
-	s, err := av.DBName.Collection("sessions").Doc(sT).Get(av.GCContext)
+	s, err := av.DBName.Collection(av.SessionsTable).Doc(sT).Get(av.GCContext)
 	if err != nil {
 		if status.Code(err) == codes.NotFound { // if session doesn't exist
 			return nil, &Error{
@@ -141,7 +137,7 @@ func GetSession(sT string) (*Session, error) {
 // DeleteDeadSessions deletes all the expired sessions from the FireStore DB
 func DeleteDeadSessions() error {
 	// get all dead sessions
-	q := av.DBName.Collection("sessions").
+	q := av.DBName.Collection(av.SessionsTable).
 		Where("expiryDate", "<", time.Now()).Documents(av.GCContext)
 	// delete them
 	x, err := q.GetAll()

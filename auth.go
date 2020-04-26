@@ -54,6 +54,8 @@ type InitAuthVariables struct {
 	SessionLife       int               // *Required* How long a session should live on the server (seconds)
 	GCContext         context.Context   // *Required* GCloud context
 	CookieEncoding    string            //Encoding Key //
+	SessionsTable     string
+	UsersTable        string
 }
 
 // Init initializes the package based on variables defined in the
@@ -70,6 +72,10 @@ func (iav *InitAuthVariables) Init() error {
 		err = "session life not set"
 	} else if iav.GCContext == nil {
 		err = "no GC context provided"
+	} else if iav.SessionsTable == "" {
+		err = "no session table name provided"
+	} else if iav.UsersTable == "" {
+		err = "no user table name provided"
 	}
 
 	if err != "" {

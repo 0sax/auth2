@@ -11,15 +11,13 @@ import (
 
 // User is a holder struct for carrying user details to and from various functions as needed
 type User struct {
-	FirstName string      `firestore:"firstName,omitempty"`
-	LastName  string      `firestore:"lastName,omitempty"`
-	Email     string      `firestore:"email,omitempty"`
-	Password  string      `firestore:"password,omitempty"`
-	UserID    int         `firestore:"userID,omitempty"`
-	Role      string      `firestore:"role,omitempty"`
-	Approved  bool        `firestore:"approved,omitempty"`
-	Data      interface{} `firestore:"data,omitempty"` //optional field for app specific data
-	IPAddr    string
+	Email    string      `firestore:"email,omitempty"`
+	Password string      `firestore:"password,omitempty"`
+	UserID   int         `firestore:"userID,omitempty"`
+	Role     string      `firestore:"role,omitempty"`
+	Approved bool        `firestore:"approved,omitempty"`
+	Data     interface{} `firestore:"data,omitempty"` //optional field for app specific data
+	IPAddr   string
 }
 
 // Create creates a new user and logs to the database
@@ -40,7 +38,7 @@ func (u *User) Create() error {
 	u.Approved = false
 
 	// 2. Add User
-	_, _, err = av.DBName.Collection("users").Add(av.GCContext, u)
+	_, _, err = av.DBName.Collection(av.UsersTable).Add(av.GCContext, u)
 	if err != nil {
 		return err
 	}
@@ -55,7 +53,7 @@ func (u *User) getUserSnapshot() (*firestore.DocumentSnapshot, error) {
 			ErrType: ErrNoEmail}
 	}
 
-	usr, err := av.DBName.Collection("users").Where("email", "==", u.Email).
+	usr, err := av.DBName.Collection(av.UsersTable).Where("email", "==", u.Email).
 		Documents(av.GCContext).GetAll()
 	if err != nil {
 		return nil, &Error{
@@ -98,8 +96,6 @@ func (u *User) UpdateFromSession(s string) error {
 	if err != nil {
 		return errors.New("Unable to get user details because: " + err.Error())
 	}
-	u.FirstName = m.FirstName
-	u.LastName = m.LastName
 	u.Email = m.Email
 	u.Role = m.Role
 	u.Data = m.Data
