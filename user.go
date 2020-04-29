@@ -119,7 +119,7 @@ func (u *User) SignIn() (*http.Cookie, error) {
 			ErrType: ErrNoEmail}
 	}
 	if u.Password == "" {
-		return nil, &Error{Msg: "please provide an email address",
+		return nil, &Error{Msg: "please provide a password",
 			ErrType: ErrNoPassword}
 	}
 	pw := u.Password
