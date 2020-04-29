@@ -141,7 +141,7 @@ func (u *User) SignIn() (*http.Cookie, error) {
 		}
 	}
 
-	if u.Approved != true {
+	if u2.Approved != true {
 		return nil, &Error{
 			Msg:     "user account not yet approved",
 			ErrType: ErrUserNotApproved,
