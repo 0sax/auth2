@@ -14,7 +14,7 @@ import (
 type Session struct {
 	Email      string      `firestore:"email"`
 	ExpiryDate time.Time   `firestore:"expiryDate"`
-	Role       string      `firestore:"roles"`
+	Role       string      `firestore:"role"`
 	IPAddr     string      `firestore:"iPAddress"`
 	Data       interface{} `firestore:"data"`
 }
