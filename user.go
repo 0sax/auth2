@@ -83,7 +83,7 @@ func (u *User) getUserSnapshot() (*firestore.DocumentSnapshot, error) {
 }
 
 // DataTo parses nested maps to a struct i
-func (u *User) DataTo(s *interface{}) error {
+func (u *User) DataTo(s interface{}) error {
 	//decode to struct
 	err := mapstructure.Decode(u.Data, &s)
 	if err != nil {
