@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"github.com/mitchellh/mapstructure"
 	"golang.org/x/crypto/bcrypt"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"net/http"
 	"strconv"
 )
@@ -22,28 +24,58 @@ type User struct {
 }
 
 // Create creates a new user and logs to the database
-func (u *User) Create() error {
+// If customID is true, document ID will be set to the UserID specified
+// in the struct
+func (u *User) Create(customID bool) error {
 
 	_, err := u.getUserSnapshot()
 	if err != nil && err.(*Error).ErrType != ErrNoUser {
-		return errors.New("user already exists")
+		return errors.New("user with this email address already exists")
 	}
 
 	// 1. Generate Password hash
 	pass, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return errors.New("Password Encryption failed" + err.Error())
+		return errors.New("Password hashing failed" + err.Error())
 	}
 
 	u.Password = string(pass)
 	u.Approved = false
 
-	// 2. Add User
-	_, _, err = av.DBName.Collection(av.UsersTable).Add(av.GCContext, u)
-	if err != nil {
-		return err
+	switch customID {
+	case true:
+		//If id setting is custom,
+		// Check if ID is present
+		if u.UserID == "" {
+			return errors.New("custom ID set as \"true\" yet no ID was provided")
+		}
+		// check if that ID already exists
+		_, err := av.DBName.Collection(av.UsersTable).Doc(u.UserID).Get(av.GCContext)
+		switch {
+		case err != nil:
+			switch {
+			case status.Code(err) == codes.NotFound:
+				//create a new one
+				_, err := av.DBName.Collection(av.UsersTable).Doc(u.UserID).
+					Set(av.GCContext, u)
+				if err != nil {
+					return errors.New("could not create user because: " + err.Error())
+				}
+			default:
+				return errors.New("could not create user because: " + err.Error())
+			}
+		case err == nil:
+			return errors.New("a user with this id already exists in database: ")
+		}
+	case false:
+		//if not, use add
+		_, _, err = av.DBName.Collection(av.UsersTable).Add(av.GCContext, u)
+		if err != nil {
+			return err
+		}
 	}
 
+	// 2. Add User
 	return nil
 }
 

@@ -141,6 +141,7 @@ func AuthMiddleware(next func(w http.ResponseWriter, r *http.Request),
 			if err != nil {
 				fmt.Println("error getting session details", err)
 				//todo: handle better
+				//todo: if no session, delete cookie
 				http.Redirect(w, r, rdr2, http.StatusForbidden)
 				return
 			}
