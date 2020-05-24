@@ -28,7 +28,7 @@ type User struct {
 // in the struct
 func (u *User) Create(customID bool) error {
 
-	_, err := u.getUserSnapshot()
+	_, err := u.GetUserSnapshot()
 	if err != nil && err.(*Error).ErrType != ErrNoUser {
 		return errors.New("user with this email address already exists")
 	}
@@ -79,8 +79,8 @@ func (u *User) Create(customID bool) error {
 	return nil
 }
 
-//getUserSnapshot pulls up the firestore.DocumentSnapshot for User u
-func (u *User) getUserSnapshot() (*firestore.DocumentSnapshot, error) {
+//GetUserSnapshot pulls up the firestore.DocumentSnapshot for User u
+func (u *User) GetUserSnapshot() (*firestore.DocumentSnapshot, error) {
 	if u.Email == "" {
 		return nil, &Error{Msg: "please provide an email address",
 			ErrType: ErrNoEmail}
@@ -128,7 +128,7 @@ func (u *User) DataTo(s interface{}) error {
 // Edit Changes user details to those defined in the User struct
 // All non-zero values will overwrite existing values
 func (u User) Edit() error {
-	usr, err := u.getUserSnapshot()
+	usr, err := u.GetUserSnapshot()
 	if err != nil {
 		return err
 	}
@@ -169,7 +169,7 @@ func (u *User) SignIn() (*http.Cookie, error) {
 	pw := u.Password
 
 	// check for user
-	usr, err := u.getUserSnapshot()
+	usr, err := u.GetUserSnapshot()
 	if err != nil {
 		return nil, err
 	}
