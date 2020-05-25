@@ -293,3 +293,5 @@ func (u *User) ResetPassword() (string, error) {
 	fmt.Println("password reset successful")
 	return tempPass, nil
 }
+
+//Comment
