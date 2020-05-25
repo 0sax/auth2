@@ -40,7 +40,6 @@ func (u *User) Create(customID bool) error {
 	}
 
 	u.Password = string(pass)
-	u.Approved = false
 
 	switch customID {
 	case true:
