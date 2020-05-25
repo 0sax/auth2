@@ -220,3 +220,78 @@ func (u *User) SignIn() (*http.Cookie, error) {
 
 	return c, nil
 }
+
+//ChangePasword will change a user's password, u struct only needs
+// email address and password field to be populated
+func (u *User) ChangePassword(newPassword string) error {
+
+	// Get snapshot
+	u1, err := u.GetUserSnapshot()
+	if err != nil {
+		return err // custom error
+	}
+
+	// Parse to User struct
+	var u2 User
+	err = u1.DataTo(&u2)
+	if err != nil {
+		return &Error{
+			Msg:      "error parsing user details to user struct: " + err.Error(),
+			ErrType:  ErrParseError,
+			Ancestor: err,
+		}
+	}
+
+	// Compare old password with current password
+	err = bcrypt.CompareHashAndPassword([]byte(u2.Password), []byte(u.Password))
+	if err != nil {
+		return &Error{
+			Msg:      "Wrong Password",
+			ErrType:  ErrWrongPassword,
+			Ancestor: err,
+		}
+	}
+	// Generate hash for new password
+	pass, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return errors.New("Password hashing failed" + err.Error())
+	}
+
+	// Update password field with new hash
+	_, err = u1.Ref.Update(av.GCContext, []firestore.Update{{Path: "password", Value: string(pass)}})
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("password change successful")
+	return nil
+
+}
+
+//ChangePasword will reset a user's password, u struct only needs
+// email address and password field to be populated
+// returns newPassword as a string
+func (u *User) ResetPassword() (string, error) {
+
+	// Get snapshot
+	u1, err := u.GetUserSnapshot()
+	if err != nil {
+		return "", err // custom error
+	}
+	// generate random string
+	tempPass := randomString(6)
+	// Create hash from random string
+	pass, err := bcrypt.GenerateFromPassword([]byte(tempPass), bcrypt.DefaultCost)
+	if err != nil {
+		return "", errors.New("Password hashing failed" + err.Error())
+	}
+	// Update password field with new hash
+	_, err = u1.Ref.Update(av.GCContext, []firestore.Update{{Path: "password", Value: string(pass)}})
+	if err != nil {
+		return "", err
+	}
+
+	fmt.Println("password reset successful")
+	return tempPass, nil
+
+}
