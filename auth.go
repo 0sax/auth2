@@ -57,6 +57,7 @@ type InitAuthVariables struct {
 	CookieEncoding    string            //Encoding Key //
 	SessionsTable     string
 	UsersTable        string
+	//Mailer
 }
 
 // Init initializes the package based on variables defined in the

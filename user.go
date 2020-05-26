@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"net/http"
+	"net/smtp"
 	"strconv"
 )
 
@@ -291,7 +292,40 @@ func (u *User) ResetPassword() (string, error) {
 		return "", err
 	}
 	fmt.Println("password reset successful")
+
 	return tempPass, nil
+
 }
 
 //Comment
+
+type EmailParams struct {
+	From string
+	Pass string
+	Host string
+	Port string
+}
+
+func (u *User) SendResetMailer(message, password string, emp EmailParams) error {
+
+	from := emp.From
+	pass := emp.Pass
+	host := emp.Host
+	port := emp.Port
+
+	to := []string{u.Email}
+
+	msg := message + "\n \n Your temporary password is: " + password +
+		"\n Please change this as soon as you sign in"
+
+	auth := smtp.PlainAuth("", from, pass, host)
+
+	err := smtp.SendMail(host+":"+port, auth, from, to, []byte(msg))
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Email Sent!")
+	return nil
+
+}
