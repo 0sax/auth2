@@ -270,8 +270,7 @@ func (u *User) ChangePassword(newPassword string) error {
 }
 
 //ChangePasword will reset a user's password, u struct only needs
-// email address and password field to be populated
-// returns newPassword as a string
+// email address field to be populated
 func (u *User) ResetPassword() (string, error) {
 
 	// Get snapshot
