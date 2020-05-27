@@ -26,12 +26,12 @@ func TestUser_SendResetMailer(t *testing.T) {
 		// TODO: Add test cases.
 
 		{name: "test1",
-			fields: fields{Email: "omfaluyi@gmail.com"},
+			fields: fields{Email: "Recepient"},
 			args: args{
 				"Hello, Guyman, your password has been reset by your admin...",
 				"nuP45S3355",
-				EmailParams{"osas@788.ng",
-					"Andro7887@",
+				EmailParams{"Email",
+					"Password",
 					"smtp.gmail.com",
 					"587"},
 			},
